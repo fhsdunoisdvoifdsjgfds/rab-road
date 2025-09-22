@@ -40,7 +40,7 @@ dependencies:
   intl: ^0.20.2
   fl_chart: ^0.70.2
   firebase_core: ^2.24.2
-  app_tracking_transparency: ^2.0.4
+  # app_tracking_transparency: ^2.0.4
   flutter_inappwebview: ^6.0.0
   appsflyer_sdk: 
   overlay_support: ^2.1.0

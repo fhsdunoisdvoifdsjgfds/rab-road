@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
-import 'package:app_tracking_transparency/app_tracking_transparency.dart';
-import 'package:appsflyer_sdk/appsflyer_sdk.dart';
+// import 'package:app_tracking_transparency/app_tracking_transparency.dart';
+// import 'package:appsflyer_sdk/appsflyer_sdk.dart';
 import 'package:dio/dio.dart';
 import 'package:firebase_app_installations/firebase_app_installations.dart';
 import 'package:flutter_asa_attribution/flutter_asa_attribution.dart';
@@ -25,7 +25,7 @@ final String appId = '6752644608';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  await AppTrackingTransparency.requestTrackingAuthorization();
+  // await AppTrackingTransparency.requestTrackingAuthorization();
   OneSignal.initialize(onesignalAppId);
   await OneSignal.Notifications.requestPermission(true);
   runApp(GameTimer());
@@ -41,13 +41,13 @@ class GameTimer extends StatefulWidget {
 class _GameTimerState extends State<GameTimer> {
   final GlobalKey webViewKey = GlobalKey();
   final dio = Dio();
-  DeepLink? _deepLinkResult;
+  // DeepLink? _deepLinkResult;
   Map<String, dynamic> _asaData = {};
-  Map<String, dynamic> _conversionData = {};
+  // Map<String, dynamic> _conversionData = {};
   String? _firebaseInstanceId;
   String? _customDeepLinkData;
 
-  AppsflyerSdk? _appsFlyerSdk;
+  // AppsflyerSdk? _appsFlyerSdk;
   final _dataCompleter = Completer<Map<String, dynamic>>();
 
   String? _loadUrl;
@@ -157,11 +157,11 @@ class _GameTimerState extends State<GameTimer> {
         return;
       }
 
-      await AppTrackingTransparency.requestTrackingAuthorization();
+      // await AppTrackingTransparency.requestTrackingAuthorization();
       await _getFirebaseInstanceId();
       await _fetchAppleSearchAdsData();
       _dataCompleter.complete({'appsFlyerData': 'No Data'});
-      await _initializeAppsFlyer();
+      // await _initializeAppsFlyer();
     } catch (e) {
       print("Initialization error: $e");
     }
@@ -173,73 +173,73 @@ class _GameTimerState extends State<GameTimer> {
     }
   }
 
-  Future<void> _initializeAppsFlyer() async {
-    try {
-      return await Future.any([
-        _actualAppsFlyerInit(),
-        Future.delayed(const Duration(seconds: 8), () {
-          if (!_dataCompleter.isCompleted) {
-            _dataCompleter.complete({'appsFlyerData': 'No Data'});
-          }
-          return;
-        }),
-      ]);
-    } catch (e) {
-      print("AppsFlyer initialization error: $e");
-      if (!_dataCompleter.isCompleted) {
-        _dataCompleter.complete({
-          'error': e.toString(),
-          'appsFlyerData': 'No Data',
-        });
-      }
-    }
-  }
+  // Future<void> _initializeAppsFlyer() async {
+  //   try {
+  //     return await Future.any([
+  //       _actualAppsFlyerInit(),
+  //       Future.delayed(const Duration(seconds: 8), () {
+  //         if (!_dataCompleter.isCompleted) {
+  //           _dataCompleter.complete({'appsFlyerData': 'No Data'});
+  //         }
+  //         return;
+  //       }),
+  //     ]);
+  //   } catch (e) {
+  //     print("AppsFlyer initialization error: $e");
+  //     if (!_dataCompleter.isCompleted) {
+  //       _dataCompleter.complete({
+  //         'error': e.toString(),
+  //         'appsFlyerData': 'No Data',
+  //       });
+  //     }
+  //   }
+  // }
 
-  Future<void> _actualAppsFlyerInit() async {
-    final appsFlyerOptions = AppsFlyerOptions(
-      afDevKey: appsFlyerDevKey,
-      appId: appId,
-      timeToWaitForATTUserAuthorization: 15,
-      showDebug: false,
-    );
+  // Future<void> _actualAppsFlyerInit() async {
+  //   final appsFlyerOptions = AppsFlyerOptions(
+  //     afDevKey: appsFlyerDevKey,
+  //     appId: appId,
+  //     timeToWaitForATTUserAuthorization: 15,
+  //     showDebug: false,
+  //   );
 
-    _appsFlyerSdk = AppsflyerSdk(appsFlyerOptions);
+  //   _appsFlyerSdk = AppsflyerSdk(appsFlyerOptions);
 
-    await _appsFlyerSdk?.initSdk(
-      registerConversionDataCallback: true,
-      registerOnAppOpenAttributionCallback: true,
-      registerOnDeepLinkingCallback: true,
-    );
+  //   await _appsFlyerSdk?.initSdk(
+  //     registerConversionDataCallback: true,
+  //     registerOnAppOpenAttributionCallback: true,
+  //     registerOnDeepLinkingCallback: true,
+  //   );
 
-    _appsFlyerSdk?.onDeepLinking((DeepLinkResult dp) {
-      print("Deep linking result: ${dp.status}");
-      if (dp.status == Status.FOUND) {
-        _deepLinkResult = DeepLink(dp.deepLink?.clickEvent ?? {});
-      }
-    });
+  //   _appsFlyerSdk?.onDeepLinking((DeepLinkResult dp) {
+  //     print("Deep linking result: ${dp.status}");
+  //     if (dp.status == Status.FOUND) {
+  //       _deepLinkResult = DeepLink(dp.deepLink?.clickEvent ?? {});
+  //     }
+  //   });
 
-    _appsFlyerSdk?.onInstallConversionData((response) {
-      if (!_dataCompleter.isCompleted) {
-        if (response != null && response['payload'] != null) {
-          final payload = response['payload'] as Map<String, dynamic>;
-          Map<String, dynamic> data = {};
-          payload.forEach((key, value) {
-            if (value != null) {
-              data[key] = value;
-            }
-          });
+  //   _appsFlyerSdk?.onInstallConversionData((response) {
+  //     if (!_dataCompleter.isCompleted) {
+  //       if (response != null && response['payload'] != null) {
+  //         final payload = response['payload'] as Map<String, dynamic>;
+  //         Map<String, dynamic> data = {};
+  //         payload.forEach((key, value) {
+  //           if (value != null) {
+  //             data[key] = value;
+  //           }
+  //         });
 
-          if (data.isNotEmpty) {
-            _dataCompleter.complete({...data});
-          } else {
-            _dataCompleter.complete({'appsFlyerData': 'No Data'});
-          }
-        } else {
-          _dataCompleter.complete({'appsFlyerData': 'No Data'});
-        }
-      }
-    });
-  }
+  //         if (data.isNotEmpty) {
+  //           _dataCompleter.complete({...data});
+  //         } else {
+  //           _dataCompleter.complete({'appsFlyerData': 'No Data'});
+  //         }
+  //       } else {
+  //         _dataCompleter.complete({'appsFlyerData': 'No Data'});
+  //       }
+  //     }
+  //   });
+  // }
 
   Future<String?> _initializeAndFetchData(Map<String, dynamic> data) async {
     try {
@@ -255,77 +255,89 @@ class _GameTimerState extends State<GameTimer> {
         await prefs.setString('external_id', externalId);
       }
       OneSignal.login(externalId);
-      String appsFlyerUID;
-      try {
-        appsFlyerUID = await _appsFlyerSdk?.getAppsFlyerUID() ?? '';
-        print("AppsFlyerUID: $appsFlyerUID");
-      } catch (e) {
-        print("Error getting AppsFlyer UID: $e");
-        appsFlyerUID = '';
-      }
+
+      // String appsFlyerUID;
+      // try {
+      //   appsFlyerUID = await _appsFlyerSdk?.getAppsFlyerUID() ?? '';
+      //   print("AppsFlyerUID: $appsFlyerUID");
+      // } catch (e) {
+      //   print("Error getting AppsFlyer UID: $e");
+      //   appsFlyerUID = '';
+      // }
 
       final requestData = {
         "app_id": 'id$appId',
         "app_name": appName,
         "package_id": bundleId,
-        "appsflyer_id": appsFlyerUID,
+        "appsflyer_id": 'No Data', // appsFlyerUID,
         "dev_key": appsFlyerDevKey,
         "onesignal_app_id": onesignalAppId,
         "onesignal_external_id": externalId,
         "firebase_instance_id": _firebaseInstanceId ?? '',
         "platform": "ios",
         "deeplinkscheme": "rabroadd",
-        ...data,
+        // ...data, // Убираем AppsFlyer данные
       };
+
       if (_customDeepLinkData != null) {
-        requestData["custom_deep_link"] = _customDeepLinkData;
+        // requestData["custom_deep_link"] = _customDeepLinkData;
         requestData["custom_deep_link_scheme"] = "rabroadd";
       }
 
-      if (_conversionData.containsKey('payload')) {
-        Map<String, dynamic> appsFlyerData = _conversionData['payload'];
-        if (appsFlyerData.containsKey('media_source')) {
-          String alternateMedium = 'medium';
-          if (appsFlyerData['campaign'] != null &&
-              appsFlyerData['campaign'].toString().isNotEmpty) {
-            String campaignString = appsFlyerData['campaign'].toString();
-            List<String> parts = campaignString.split('_');
-            alternateMedium = parts.isNotEmpty ? parts[0] : campaignString;
-          }
-          requestData.addAll({
-            'utm_medium':
-                appsFlyerData['af_sub1'] != 'auto' &&
-                    appsFlyerData['af_sub1'] != null &&
-                    appsFlyerData['af_sub1'].toString().isNotEmpty
-                ? appsFlyerData['af_sub1']
-                : alternateMedium,
-            'utm_content':
-                appsFlyerData['af_sub2'] != 'auto' &&
-                    appsFlyerData['af_sub2'] != null &&
-                    appsFlyerData['af_sub2'].toString().isNotEmpty
-                ? appsFlyerData['af_sub2']
-                : (appsFlyerData['campaign']?.toString() ?? 'campaign'),
-            'utm_term':
-                appsFlyerData['af_sub3'] != 'auto' &&
-                    appsFlyerData['af_sub3'] != null &&
-                    appsFlyerData['af_sub3'].toString().isNotEmpty
-                ? appsFlyerData['af_sub3']
-                : (appsFlyerData['af_ad']?.toString() ?? 'af_ad'),
-            'utm_source':
-                appsFlyerData['af_sub4'] != 'auto' &&
-                    appsFlyerData['af_sub4'] != null &&
-                    appsFlyerData['af_sub4'].toString().isNotEmpty
-                ? appsFlyerData['af_sub4']
-                : (appsFlyerData['media_source']?.toString() ?? 'media_source'),
-            'utm_campaign':
-                appsFlyerData['af_sub5'] != 'auto' &&
-                    appsFlyerData['af_sub5'] != null &&
-                    appsFlyerData['af_sub5'].toString().isNotEmpty
-                ? appsFlyerData['af_sub5']
-                : (appsFlyerData['af_adset']?.toString() ?? 'af_adset'),
-          });
-        }
-      }
+      // Убираем всю обработку AppsFlyer данных
+      // if (_conversionData.containsKey('payload')) {
+      //   Map<String, dynamic> appsFlyerData = _conversionData['payload'];
+      //   if (appsFlyerData.containsKey('media_source')) {
+      //     String alternateMedium = 'medium';
+      //     if (appsFlyerData['campaign'] != null &&
+      //         appsFlyerData['campaign'].toString().isNotEmpty) {
+      //       String campaignString = appsFlyerData['campaign'].toString();
+      //       List<String> parts = campaignString.split('_');
+      //       alternateMedium = parts.isNotEmpty ? parts[0] : campaignString;
+      //     }
+      //     requestData.addAll({
+      //       'utm_medium':
+      //           appsFlyerData['af_sub1'] != 'auto' &&
+      //               appsFlyerData['af_sub1'] != null &&
+      //               appsFlyerData['af_sub1'].toString().isNotEmpty
+      //           ? appsFlyerData['af_sub1']
+      //           : alternateMedium,
+      //       'utm_content':
+      //           appsFlyerData['af_sub2'] != 'auto' &&
+      //               appsFlyerData['af_sub2'] != null &&
+      //               appsFlyerData['af_sub2'].toString().isNotEmpty
+      //           ? appsFlyerData['af_sub2']
+      //           : (appsFlyerData['campaign']?.toString() ?? 'campaign'),
+      //       'utm_term':
+      //           appsFlyerData['af_sub3'] != 'auto' &&
+      //               appsFlyerData['af_sub3'] != null &&
+      //               appsFlyerData['af_sub3'].toString().isNotEmpty
+      //           ? appsFlyerData['af_sub3']
+      //           : (appsFlyerData['af_ad']?.toString() ?? 'af_ad'),
+      //       'utm_source':
+      //           appsFlyerData['af_sub4'] != 'auto' &&
+      //               appsFlyerData['af_sub4'] != null &&
+      //               appsFlyerData['af_sub4'].toString().isNotEmpty
+      //           ? appsFlyerData['af_sub4']
+      //           : (appsFlyerData['media_source']?.toString() ?? 'media_source'),
+      //       'utm_campaign':
+      //           appsFlyerData['af_sub5'] != 'auto' &&
+      //               appsFlyerData['af_sub5'] != null &&
+      //               appsFlyerData['af_sub5'].toString().isNotEmpty
+      //           ? appsFlyerData['af_sub5']
+      //           : (appsFlyerData['af_adset']?.toString() ?? 'af_adset'),
+      //     });
+      //   }
+      // }
+
+      // Отправляем No Data вместо AppsFlyer UTM параметров
+      requestData.addAll({
+        'utm_medium': 'No Data',
+        'utm_content': 'No Data',
+        'utm_term': 'No Data',
+        'utm_source': 'No Data',
+        'utm_campaign': 'No Data',
+      });
 
       // if (_deepLinkResult != null) {
       //   print("Adding deep link data");
@@ -441,34 +453,35 @@ class _GameTimerState extends State<GameTimer> {
   }
 }
 
-class DeepLink {
-  DeepLink(this._clickEvent);
-  final Map<String, dynamic> _clickEvent;
+// Закомментирован класс DeepLink
+// class DeepLink {
+//   DeepLink(this._clickEvent);
+//   final Map<String, dynamic> _clickEvent;
 
-  Map<String, dynamic> get clickEvent => _clickEvent;
+//   Map<String, dynamic> get clickEvent => _clickEvent;
 
-  String? get deepLinkValue => _clickEvent["deep_link_value"] as String?;
-  String? get matchType => _clickEvent["match_type"] as String?;
-  String? get clickHttpReferrer =>
-      _clickEvent["click_http_referrer"] as String?;
-  String? get mediaSource => _clickEvent["media_source"] as String?;
-  String? get deep_link_sub1 => _clickEvent["deep_link_sub1"] as String?;
-  String? get deep_link_sub2 => _clickEvent["deep_link_sub2"] as String?;
-  String? get deep_link_sub3 => _clickEvent["deep_link_sub3"] as String?;
-  String? get deep_link_sub4 => _clickEvent["deep_link_sub4"] as String?;
-  String? get deep_link_sub5 => _clickEvent["deep_link_sub5"] as String?;
+//   String? get deepLinkValue => _clickEvent["deep_link_value"] as String?;
+//   String? get matchType => _clickEvent["match_type"] as String?;
+//   String? get clickHttpReferrer =>
+//       _clickEvent["click_http_referrer"] as String?;
+//   String? get mediaSource => _clickEvent["media_source"] as String?;
+//   String? get deep_link_sub1 => _clickEvent["deep_link_sub1"] as String?;
+//   String? get deep_link_sub2 => _clickEvent["deep_link_sub2"] as String?;
+//   String? get deep_link_sub3 => _clickEvent["deep_link_sub3"] as String?;
+//   String? get deep_link_sub4 => _clickEvent["deep_link_sub4"] as String?;
+//   String? get deep_link_sub5 => _clickEvent["deep_link_sub5"] as String?;
 
-  bool get isDeferred => _clickEvent["is_deferred"] as bool? ?? false;
+//   bool get isDeferred => _clickEvent["is_deferred"] as bool? ?? false;
 
-  @override
-  String toString() {
-    return 'DeepLink: ${jsonEncode(_clickEvent)}';
-  }
+//   @override
+//   String toString() {
+//     return 'DeepLink: ${jsonEncode(_clickEvent)}';
+//   }
 
-  String? getStringValue(String key) {
-    return _clickEvent[key] as String?;
-  }
-}
+//   String? getStringValue(String key) {
+//     return _clickEvent[key] as String?;
+//   }
+// }
 
 class LoadingScreen extends StatelessWidget {
   const LoadingScreen({super.key});

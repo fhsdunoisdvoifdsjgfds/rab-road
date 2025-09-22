@@ -1,5 +1,4 @@
 import 'dart:math' as math;
-import 'package:app_tracking_transparency/app_tracking_transparency.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:async';
@@ -15,7 +14,6 @@ class _MainPageState extends State<MainPage> {
   @override
   void initState() {
     super.initState();
-    AppTrackingTransparency.requestTrackingAuthorization();
   }
 
   @override
