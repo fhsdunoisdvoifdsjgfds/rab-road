@@ -3,15 +3,16 @@ import 'dart:convert';
 import 'package:app_tracking_transparency/app_tracking_transparency.dart';
 import 'package:appsflyer_sdk/appsflyer_sdk.dart';
 import 'package:dio/dio.dart';
+import 'package:firebase_app_installations/firebase_app_installations.dart';
 import 'package:flutter_asa_attribution/flutter_asa_attribution.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:onesignal_flutter/onesignal_flutter.dart';
+import 'package:road/firebase_options.dart';
 import 'package:road/main_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/services.dart';
 
 final String onesignalAppId = "c4f3ab34-9771-4a31-94d3-55589222ff35";
@@ -23,7 +24,7 @@ final String appId = '6752644608';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await AppTrackingTransparency.requestTrackingAuthorization();
   OneSignal.initialize(onesignalAppId);
   await OneSignal.Notifications.requestPermission(true);
@@ -102,11 +103,16 @@ class _GameTimerState extends State<GameTimer> {
 
   Future<void> _getFirebaseInstanceId() async {
     try {
-      final FirebaseMessaging messaging = FirebaseMessaging.instance;
-      _firebaseInstanceId = await messaging.getToken();
-      print("Firebase Instance ID: $_firebaseInstanceId");
+      // Получаем Installation ID (рекомендуемый способ)
+      final FirebaseInstallations installations =
+          FirebaseInstallations.instance;
+      _firebaseInstanceId = await installations.getId();
+      print("Firebase Installation ID: $_firebaseInstanceId");
+
+      // Также можно получить auth token если нужно
+      final authToken = await installations.getToken();
     } catch (e) {
-      print("Error getting Firebase Instance ID: $e");
+      print("Error getting Firebase Installation ID: $e");
       _firebaseInstanceId = null;
     }
   }
@@ -194,7 +200,7 @@ class _GameTimerState extends State<GameTimer> {
       afDevKey: appsFlyerDevKey,
       appId: appId,
       timeToWaitForATTUserAuthorization: 15,
-      showDebug: true,
+      showDebug: false,
     );
 
     _appsFlyerSdk = AppsflyerSdk(appsFlyerOptions);
