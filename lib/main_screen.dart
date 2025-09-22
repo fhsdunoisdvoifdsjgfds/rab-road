@@ -1,4 +1,5 @@
 import 'dart:math' as math;
+import 'package:app_tracking_transparency/app_tracking_transparency.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:async';
@@ -11,6 +12,12 @@ class MainPage extends StatefulWidget {
 }
 
 class _MainPageState extends State<MainPage> {
+  @override
+  void initState() {
+    super.initState();
+    AppTrackingTransparency.requestTrackingAuthorization();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -551,23 +558,6 @@ class _ShopPageState extends State<ShopPage> {
             ),
 
             // Shop title
-            Padding(
-              padding: EdgeInsets.all(20),
-              child: Text(
-                'SHOP',
-                style: GoogleFonts.titanOne(
-                  fontSize: 36,
-                  color: Colors.brown,
-                  shadows: [
-                    Shadow(
-                      blurRadius: 5.0,
-                      color: Colors.orange,
-                      offset: Offset(2.0, 2.0),
-                    ),
-                  ],
-                ),
-              ),
-            ),
 
             // Shop items
             Expanded(
@@ -575,85 +565,76 @@ class _ShopPageState extends State<ShopPage> {
                 margin: EdgeInsets.symmetric(horizontal: 20),
                 padding: EdgeInsets.all(20),
                 decoration: BoxDecoration(
-                  color: Colors.brown.withOpacity(0.8),
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: Colors.orange, width: 3),
-                ),
-                child: GridView.builder(
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 3,
-                    crossAxisSpacing: 15,
-                    mainAxisSpacing: 20,
+                  image: DecorationImage(
+                    image: AssetImage('assets/shop.png'),
+                    fit: BoxFit.fitHeight,
                   ),
-                  itemCount: 9,
-                  itemBuilder: (context, index) {
-                    int vegId = index + 1;
-                    bool isUnlocked = availableVegetables.contains(vegId);
-                    int price = getVegetablePrice(vegId);
-                    bool canBuy = coins >= price && !isUnlocked;
+                ),
+                child: Padding(
+                  padding: EdgeInsetsGeometry.only(top: 120),
+                  child: GridView.builder(
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 3,
+                      crossAxisSpacing: 30,
+                      mainAxisSpacing: 20,
+                    ),
+                    itemCount: 9,
+                    itemBuilder: (context, index) {
+                      int vegId = index + 1;
+                      bool isUnlocked = availableVegetables.contains(vegId);
+                      int price = getVegetablePrice(vegId);
+                      bool canBuy = coins >= price && !isUnlocked;
 
-                    return GestureDetector(
-                      onTap: canBuy
-                          ? () {
-                              setState(() {
-                                coins -= price;
-                                availableVegetables.add(vegId);
-                              });
-                            }
-                          : null,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: isUnlocked
-                              ? Colors.green.withOpacity(0.3)
-                              : canBuy
-                              ? Colors.orange.withOpacity(0.3)
-                              : Colors.grey.withOpacity(0.3),
-                          borderRadius: BorderRadius.circular(10),
-                          border: Border.all(
-                            color: isUnlocked
-                                ? Colors.green
-                                : canBuy
-                                ? Colors.orange
-                                : Colors.grey,
-                            width: 2,
+                      return GestureDetector(
+                        onTap: canBuy
+                            ? () {
+                                setState(() {
+                                  coins -= price;
+                                  availableVegetables.add(vegId);
+                                });
+                              }
+                            : null,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(10),
                           ),
-                        ),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Image.asset(
-                              'assets/veg/$vegId.png',
-                              width: 50,
-                              height: 50,
-                              color: isUnlocked
-                                  ? null
-                                  : canBuy
-                                  ? null
-                                  : Colors.grey,
-                            ),
-                            SizedBox(height: 8),
-                            Container(
-                              padding: EdgeInsets.symmetric(
-                                horizontal: 8,
-                                vertical: 4,
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Image.asset(
+                                'assets/veg/$vegId.png',
+                                width: 50,
+                                height: 50,
+                                color: isUnlocked
+                                    ? null
+                                    : canBuy
+                                    ? null
+                                    : Colors.grey,
                               ),
-                              decoration: BoxDecoration(
-                                color: Colors.black54,
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: Text(
-                                isUnlocked ? 'OWNED' : '$price',
-                                style: GoogleFonts.titanOne(
-                                  fontSize: 10,
-                                  color: Colors.white,
+                              SizedBox(height: 8),
+                              Container(
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                  vertical: 4,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: Colors.black54,
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Text(
+                                  isUnlocked ? 'OWNED' : '$price',
+                                  style: GoogleFonts.titanOne(
+                                    fontSize: 10,
+                                    color: Colors.white,
+                                  ),
                                 ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
-                      ),
-                    );
-                  },
+                      );
+                    },
+                  ),
                 ),
               ),
             ),

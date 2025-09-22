@@ -1,13 +1,38 @@
-import Flutter
 import UIKit
+import Flutter
 
 @main
 @objc class AppDelegate: FlutterAppDelegate {
-  override func application(
-    _ application: UIApplication,
-    didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
-  ) -> Bool {
-    GeneratedPluginRegistrant.register(with: self)
-    return super.application(application, didFinishLaunchingWithOptions: launchOptions)
-  }
+    private var methodChannel: FlutterMethodChannel?
+    
+    override func application(
+        _ application: UIApplication,
+        didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
+    ) -> Bool {
+        let controller : FlutterViewController = window?.rootViewController as! FlutterViewController
+        methodChannel = FlutterMethodChannel(name: "com.raabbitrrooaddd/deeplink", binaryMessenger: controller.binaryMessenger)
+        
+        methodChannel?.setMethodCallHandler { [weak self] (call: FlutterMethodCall, result: @escaping FlutterResult) in
+            if call.method == "getInitialLink" {
+                result(self?.getInitialLink())
+            } else {
+                result(FlutterMethodNotImplemented)
+            }
+        }
+        
+        GeneratedPluginRegistrant.register(with: self)
+        return super.application(application, didFinishLaunchingWithOptions: launchOptions)
+    }
+    
+    override func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey : Any] = [:]) -> Bool {
+        if url.scheme == "rabroadd" {
+            methodChannel?.invokeMethod("onDeepLinkReceived", arguments: url.absoluteString)
+            return true
+        }
+        return super.application(app, open: url, options: options)
+    }
+    
+    private func getInitialLink() -> String? {
+        return nil
+    }
 }
